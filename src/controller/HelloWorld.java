@@ -1,4 +1,8 @@
 package controller;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -9,6 +13,8 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+
+import Tools.DBHelper;
 
 /**
  * @author liting 作者 E-mail:pojohn@163.com
@@ -124,34 +130,38 @@ public class HelloWorld {
 		
          
 	      //输入后单击确定后的操作
-//		button1.addSelectionListener(new SelectionAdapter(){
-//            public void widgetSelected(SelectionEvent e){
-//                //创建一个adm数组
-//
-//               
-//                int j=-1;
-//               
-//                //判断账号密码是否正确
-//                for(int i=0;i<user.length;i++){
-//                    if(user[i].getName().equals(nameText.getText())&&user[i].getPastNumber().equals(passNumber.getText())){
-//                        j = 0;
-//                       break;
-//                    }
-//                }               
-//                if(j==0){
-//                    MessageDialog.openWarning(shell, "恭喜", "欢迎"+nameText.getText()+"登录");
-//                }
-//                else{
-//                     MessageDialog.openError(shell, "错误","请输入正确的用户名或密码！");
-//                }
-//                
-//                
-//           }
-//        }
-       
-//        );
+		button1.addSelectionListener(new SelectionAdapter(){
+            public void widgetSelected(SelectionEvent e){
+            	String name = text1.getText();
+            	String passWord = text2.getText();
+            	String dbUrl = text3.getText();
+            	String tableName = text4.getText();
+            	
+            	//查询数据库连接
+            	String sql = "select *from "+tableName;//SQL语句  
+            	DBHelper db1 = new DBHelper(sql, sql, sql, sql, sql, sql, sql);//创建DBHelper对象
+                try {  
+                	ResultSet ret = db1.pst.executeQuery();//执行语句，得到结果集  
+                    while (ret.next()) {
+                    	//生产Excel并且保存到指定磁盘
+                        String uid = ret.getString(1);  
+                        String ufname = ret.getString(2);  
+                        String ulname = ret.getString(3);  
+                        String udate = ret.getString(4);  
+                        System.out.println(uid + "\t" + ufname + "\t" + ulname + "\t" + udate );  
+                    }//显示数据  
+                    ret.close();  
+                    db1.close();//关闭连接  
+                } catch (SQLException e1) {  
+                    e1.printStackTrace();  
+                } 
+            	MessageDialog.openError(shell, "错误", name);
+                
+           }
+        });
         
-
 	}
+	
+	
 
 }

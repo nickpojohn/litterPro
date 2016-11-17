@@ -13,7 +13,7 @@ import java.sql.SQLException;
 public class DBHelper {
 	
     public  String url = "";  
-    public static final String name = "oracle.jdbc.driver.OracleDriver";  
+    public static final String driverName = "oracle.jdbc.driver.OracleDriver";  
     public  String user = "";  
     public  String password = "";  
     
@@ -21,11 +21,9 @@ public class DBHelper {
 	public Connection conn = null;  
     public PreparedStatement pst = null;  
   
-    public DBHelper(String url,String port,String servirceName,
-    		String user,String password,String name,String sql) {  
+    public DBHelper(String url,String user,String password,String sql) {  
         try {  
-            Class.forName(name);// 加载Oracle驱动程序
-            url = "jdbc:oracle:" + "thin:@"+url+":"+port+":"+servirceName;
+            Class.forName(driverName);// 加载Oracle驱动程序
             conn = DriverManager.getConnection(url, user, password);//获取连接  
             pst = conn.prepareStatement(sql);//准备执行语句  
         } catch (Exception e) {  

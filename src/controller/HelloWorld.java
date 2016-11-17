@@ -1,7 +1,11 @@
 package controller;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -15,6 +19,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import Tools.DBHelper;
+import Tools.ExcelUtil;
+import Tools.ExcelUtil2;
 
 /**
  * @author liting 作者 E-mail:pojohn@163.com
@@ -136,25 +142,53 @@ public class HelloWorld {
             	String passWord = text2.getText();
             	String dbUrl = text3.getText();
             	String tableName = text4.getText();
+            	String splitColumn ="";//分组字段
+            	String queryColumn ="";//查询字段
+            	String queryValue ="";//查询值
             	
+            	Workbook wb =  new HSSFWorkbook();;
             	//查询数据库连接
-            	String sql = "select *from "+tableName;//SQL语句  
-            	DBHelper db1 = new DBHelper(sql, sql, sql, sql, sql, sql, sql);//创建DBHelper对象
-                try {  
-                	ResultSet ret = db1.pst.executeQuery();//执行语句，得到结果集  
-                    while (ret.next()) {
-                    	//生产Excel并且保存到指定磁盘
-                        String uid = ret.getString(1);  
-                        String ufname = ret.getString(2);  
-                        String ulname = ret.getString(3);  
-                        String udate = ret.getString(4);  
-                        System.out.println(uid + "\t" + ufname + "\t" + ulname + "\t" + udate );  
-                    }//显示数据  
-                    ret.close();  
-                    db1.close();//关闭连接  
+            	//查询所有的分组值
+            	String sql1 = "select distinct "+splitColumn+"from "+tableName+"where "+queryColumn+"="+queryValue;//SQL语句
+            	DBHelper db1 = new DBHelper(sql1, sql1, sql1, sql1, sql1, sql1, sql1);//创建DBHelper对象
+   
+                try {  	
+                	ResultSet ret1 = db1.pst.executeQuery();//执行语句，得到结果集-分组值
+                    while (ret1.next()) {
+                        List<String[]> list = new ArrayList<String[]>();
+                    	String splitValue = ret1.getString(1);
+                    	String sql2 = "select * from "+tableName+"where "+splitColumn+"="+splitValue;//SQL语句                    	
+                    	DBHelper db2 = new DBHelper(sql1, sql1, sql1, sql1, sql1, sql1, sql1);//创建DBHelper对象
+                    	ResultSet ret2 = db2.pst.executeQuery();//执行语句，得到结果集-分组值
+                    	//得到一个分组下所有的值
+                    	List<String> listTemp = new ArrayList<String>();
+                        while (ret2.next()) {
+                        	for(int i =1;i<6;i++){
+                            String data = ret2.getString(i);
+                            System.out.println("data:"+data);
+                            listTemp.add(data);                    
+                        	}
+                        	list.add((String[]) listTemp.toArray());
+                        }
+                        
+                        //将list写入Excel  queryValue
+                        String[] columnNames = new String[6];
+                   
+                        wb = ExcelUtil2.createWorkBookByCellValue(splitValue,list, columnNames);
+                        ret2.close();  
+                        db2.close();//关闭连接  
+                    }
+                    ret1.close();  
+                    db1.close();//关闭连接
+                    //生成
+                    String filepath = "";
+                    ExcelUtil2.ExcelFileExport(wb, filepath);
+
                 } catch (SQLException e1) {  
                     e1.printStackTrace();  
                 } 
+                
+                
             	MessageDialog.openError(shell, "错误", name);
                 
            }

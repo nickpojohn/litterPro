@@ -23,7 +23,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 /**
  * 导出Excel文档工具类
- * @author 那位先生
+ * @author liting
  * @date 2014-8-6
  * */
 public class ExcelUtil2 {

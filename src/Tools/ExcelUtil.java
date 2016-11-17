@@ -35,7 +35,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
  * Excel工具类，没有硬编码，修改时不要添加硬编码代码
- * @author WSF
+ * @author liting
  *
  */
 @SuppressWarnings("unchecked")

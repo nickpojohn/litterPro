@@ -174,10 +174,11 @@ public class HelloWorld {
             	String queryValue =text9.getText();;//查询值
             	String filePath =text10.getText();;//文本
             	
-            	filePath="E:/11.txt";
+            	filePath="/testjar/11.txt";
 //                String url = "jdbc:oracle:" + "thin:@"+Ip+":"+Port+":"+servirceName;
-//       	     	String url = "jdbc:mysql://localhost:3306/shiro4" ;    
+                String url = "jdbc:oracle:thin:@20.5.193.39:1521:ncbsdb";
 
+//       	     	String url = "jdbc:mysql://localhost:3306/shiro4" ;    
 //                String url = "jdbc:mysql://"+Ip+":"+Port+"/"+servirceName;
 
             	Workbook wb =  new HSSFWorkbook();;
@@ -229,7 +230,7 @@ public class HelloWorld {
                     ret1.close();  
                     db1.close();//关闭连接
                     //生成
-                    String excelPath = "E:/myout.xls";
+                    String excelPath = "/testjar/1.xls";
                     ExcelUtil2.ExcelFileExport(wb, excelPath);
                 	MessageDialog.openInformation(shell, "成功", excelPath);
 

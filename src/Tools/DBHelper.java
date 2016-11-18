@@ -13,8 +13,8 @@ import java.sql.SQLException;
 public class DBHelper {
 	
     public  String url = "";  
-//    public static final String driverName = "oracle.jdbc.driver.OracleDriver";
-    public static final String driverName = "com.mysql.jdbc.Driver"; 
+    public static final String driverName = "oracle.jdbc.driver.OracleDriver";
+//    public static final String driverName = "com.mysql.jdbc.Driver"; 
     public  String user = "";  
     public  String password = "";  
     

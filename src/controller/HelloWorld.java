@@ -1,9 +1,13 @@
 package controller;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -20,6 +24,7 @@ import org.eclipse.swt.widgets.Text;
 
 import Tools.DBHelper;
 import Tools.ExcelUtil2;
+import Tools.IoReadWrite;
 
 /**
  * @author liting 作者 E-mail:pojohn@163.com
@@ -29,6 +34,8 @@ import Tools.ExcelUtil2;
 public class HelloWorld {
 
 	protected Shell shell;
+	
+	Logger logger = Logger.getLogger(this.getClass());
 
 	/**
 	 * Launch the application.
@@ -133,13 +140,13 @@ public class HelloWorld {
 		final Label label9 = new Label(group2, SWT.NONE); 
 		label9.setBounds(10, 100, 80, 20); 
 		label9.setText("查询值：");
-		final Text text9 = new Text(group2, SWT.BORDER | SWT.PASSWORD); 
+		final Text text9 = new Text(group2, SWT.BORDER); 
 		text9.setBounds(110, 100, 80, 25);
 		
 		final Label label10 = new Label(group2, SWT.NONE); 
 		label10.setBounds(10, 130, 80, 20); 
 		label10.setText("字段映射路径：");
-		final Text text10 = new Text(group2, SWT.BORDER | SWT.PASSWORD); 
+		final Text text10 = new Text(group2, SWT.BORDER); 
 		text10.setBounds(110, 130, 80, 25);
 		
 		final Button button1 = new Button(group2, SWT.NONE);
@@ -167,55 +174,72 @@ public class HelloWorld {
             	String queryValue =text9.getText();;//查询值
             	String filePath =text10.getText();;//文本
             	
-            	
+            	filePath="E:/11.txt";
+//                String url = "jdbc:oracle:" + "thin:@"+Ip+":"+Port+":"+servirceName;
+//       	     	String url = "jdbc:mysql://localhost:3306/shiro4" ;    
 
-                String url = "jdbc:oracle:" + "thin:@"+Ip+":"+Port+":"+servirceName;
+//                String url = "jdbc:mysql://"+Ip+":"+Port+"/"+servirceName;
 
-            	
             	Workbook wb =  new HSSFWorkbook();;
             	//查询数据库连接
             	//查询所有的分组值
-            	String sql1 = "select distinct "+splitColumn+"from "+tableName+"where "+queryColumn+"="+queryValue;//SQL语句
-            	DBHelper db1 = new DBHelper(url,name,passWord, sql1);//创建DBHelper对象
-   
-                try {  	
+            	String sql1 = "select distinct "+splitColumn+" from "+tableName+" where "+queryColumn+"=?";//SQL语句
+//        		String sql1 = "select distinct name2 from data2 where name3='1'";
+
+            	DBHelper db1 = new DBHelper(url,name,passWord,sql1);//创建DBHelper对象
+                try {
+                	db1.pst.setString(1,queryValue);
                 	ResultSet ret1 = db1.pst.executeQuery();//执行语句，得到结果集-分组值
                     while (ret1.next()) {
                         List<String[]> list = new ArrayList<String[]>();
                     	String splitValue = ret1.getString(1);
-                    	String sql2 = "select * from "+tableName+"where "+splitColumn+"="+splitValue;//SQL语句                    	
+                    	String sql2 = "select * from "+tableName+" where "+splitColumn+"=?";//SQL语句                    	
                     	DBHelper db2 = new DBHelper(url,name,passWord, sql2);//创建DBHelper对象
+                    	db2.pst.setString(1,splitValue);
                     	ResultSet ret2 = db2.pst.executeQuery();//执行语句，得到结果集-分组值
+                    	ResultSetMetaData rsmd = ret2.getMetaData();
+                    	//获取当前表共有多少列  
+                        int tableLength = rsmd.getColumnCount(); 
                     	//得到一个分组下所有的值
-                    	List<String> listTemp = new ArrayList<String>();
                         while (ret2.next()) {
-                        	for(int i =1;i<6;i++){
+                        	List<String> listTemp = new ArrayList<String>();
+                        	for(int i =1;i<tableLength+1;i++){
                             String data = ret2.getString(i);
-                            System.out.println("data:"+data);
                             listTemp.add(data);                    
                         	}
-                        	list.add((String[]) listTemp.toArray());
+                        	list.add((String[]) listTemp.toArray(new String[tableLength]));
                         }
-                        
+
+                        IoReadWrite readWrite = new IoReadWrite();
+                        String txt = readWrite.read(filePath);
+            			Pattern p = Pattern.compile("\\s*|\t|\r|\n");
+            			Matcher m = p.matcher(txt);
+            			txt = m.replaceAll("");
+                        String[] columnNames = txt.split("\\|");
                         //将list写入Excel  queryValue
-                        String[] columnNames = new String[6];
-                   
-                        wb = ExcelUtil2.createWorkBookByCellValue(splitValue,list, columnNames);
+//                        String[] columnNames = new String[tableLength];
+//                        columnNames[0]="name1";
+//                        columnNames[1]="name2";
+//                        columnNames[2]="name3";
+                        
+                        wb = ExcelUtil2.createWorkBookByCellValue(wb,splitValue,list, columnNames);
                         ret2.close();  
                         db2.close();//关闭连接  
                     }
                     ret1.close();  
                     db1.close();//关闭连接
                     //生成
-                    String filepath = "";
-                    ExcelUtil2.ExcelFileExport(wb, filepath);
+                    String excelPath = "E:/myout.xls";
+                    ExcelUtil2.ExcelFileExport(wb, excelPath);
+                	MessageDialog.openInformation(shell, "成功", excelPath);
 
                 } catch (SQLException e1) {  
-                    e1.printStackTrace();  
+                    e1.printStackTrace();
+                	MessageDialog.openError(shell, "错误", e1.getMessage());
+
                 } 
                 
                 
-            	MessageDialog.openError(shell, "错误", name);
                 
            }
         });

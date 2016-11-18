@@ -111,9 +111,8 @@ public class ExcelUtil2 {
      * @param keys list中map的key数组集合
      * @param columnNames excel的列名
      * */
-    public static Workbook createWorkBookByCellValue(String sheetName,List<String[]> list,String columnNames[]) {
+    public static Workbook createWorkBookByCellValue(Workbook wb,String sheetName,List<String[]> list,String columnNames[]) {
         // 创建excel工作簿
-        Workbook wb = new HSSFWorkbook();
         // 创建第一个sheet（页），并命名
         Sheet sheet = wb.createSheet(sheetName);
         // 手动设置列宽。第一个参数表示要为第几列设；，第二个参数表示列的宽度，n为列高的像素数。
